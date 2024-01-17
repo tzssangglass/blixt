@@ -45,5 +45,6 @@ resources:
 - ../rbac
 - ../manager
 - ../dataplane
-patches:
-- path: manager_auth_proxy_patch.yaml
+- ./loadbalancer-service.yaml
+# patches:
+# - path: manager_auth_proxy_patch.yaml

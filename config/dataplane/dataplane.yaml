@@ -20,7 +20,7 @@ spec:
       hostNetwork: true
       containers:
       - name: dataplane
-        image: ghcr.io/kubernetes-sigs/blixt-dataplane:latest
+        image: ghcr.io/kubernetes-sigs/blixt-dataplane:integration-tests
         securityContext:
           privileged: true
         args: ["-i", "eth0"]
@@ -28,3 +28,5 @@ spec:
         - name: RUST_LOG
           value: debug
         imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6669

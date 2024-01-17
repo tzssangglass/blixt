@@ -25,7 +25,7 @@ spec:
         control-plane: controlplane
     spec:
       securityContext:
-        runAsNonRoot: true
+        # runAsNonRoot: true
         # TODO(user): For common cases that do not require escalating privileges
         # it is recommended to ensure that all your Pods/Containers are restrictive.
         # More info: https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
@@ -35,37 +35,39 @@ spec:
         #   type: RuntimeDefault
       containers:
       - command:
-        - /manager
-        args:
-        - --leader-elect
-        image: ghcr.io/kubernetes-sigs/blixt-controlplane:latest
+        - /dlv
+        args: ["--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/manager", "--", "--leader-elect"]
+        image: ghcr.io/kubernetes-sigs/blixt-controlplane:integration-tests
         imagePullPolicy: IfNotPresent
         name: manager
+        ports:
+        - containerPort: 40000
+          name: debug
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
               - "ALL"
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8081
-          initialDelaySeconds: 15
-          periodSeconds: 20
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8081
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        # livenessProbe:
+        #   httpGet:
+        #     path: /healthz
+        #     port: 8081
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 20
+        # readinessProbe:
+        #   httpGet:
+        #     path: /readyz
+        #     port: 8081
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 10
         # TODO(user): Configure the resources accordingly based on the project requirements.
         # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         resources:
           limits:
-            cpu: 500m
-            memory: 128Mi
+            cpu: 2000m
+            memory: 512Mi
           requests:
-            cpu: 10m
-            memory: 64Mi
+            cpu: 40m
+            memory: 256Mi
       serviceAccountName: controlplane
       terminationGracePeriodSeconds: 10

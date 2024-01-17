@@ -24,6 +24,7 @@ struct Opt {
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
+    console_subscriber::init();
     let opt = Opt::parse();
 
     // TODO(astoycos) Let's determine a better way to let processes know bpfd is up and running,

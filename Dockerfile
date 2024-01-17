@@ -20,15 +20,29 @@ COPY controllers/ controllers/
 COPY pkg/ pkg/
 COPY internal/ internal/
 
+# Build Delve
+RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -gcflags "all=-N -l" -a -o manager main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM ubuntu:22.04
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY LICENSE /workspace/LICENSE
-USER 65532:65532
 
-ENTRYPOINT ["/manager"]
+USER root
+
+RUN apt-get update && \
+    apt-get install -y net-tools procps && \
+    rm -rf /var/lib/apt/lists/*
+
+# USER 65532:65532
+
+# if dlv release new version, please update this
+COPY --from=builder /go/bin/dlv /dlv
+
+ENTRYPOINT ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/manager"]
+
+EXPOSE 40000

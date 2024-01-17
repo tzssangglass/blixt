@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: server
-        image: ghcr.io/kubernetes-sigs/blixt-udp-test-server:latest
+        image: ghcr.io/kubernetes-sigs/blixt-udp-test-server:integration-tests
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9875
